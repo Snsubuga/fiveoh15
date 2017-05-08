@@ -1,0 +1,74 @@
+<apex:page standardcontroller="Commercial__c" extensions="CommercialSchedulerController" tabstyle="Commercial__c">
+    <apex:sectionheader title="Commercial Scheduler" subtitle="{!pageSubtitle}" />
+    <apex:form >
+        <apex:pageblock title="Commercial Scheduler">
+            <apex:commandbutton value="Save" action="{!save}" />
+            <apex:commandbutton value="Cancel" action="{!cancel}" />
+            <apex:pageblocksection title="Commercial Details" columns="2" collapsible="false">
+                <apex:inputfield value="{!commercial.Name}" />
+                <apex:inputfield value="{!commercial.Account__c}" />
+                <apex:inputfield value="{!commercial.Broadcast_Start_Date__c}" />
+                <apex:inputfield value="{!commercial.Broadcast_Stop_Date__c}" />
+
+                <apex:inputfield value="{!commercial.Running_Time_Seconds__c}" />
+                <apex:inputfield value="{!commercial.Contracted_Broadcast_Time_Seconds__c}" />
+                <apex:inputfield value="{!commercial.Total_Broadcast_Time_Seconds__c}" />
+                <apex:inputfield value="{!commercial.Broadcasts_Scheduled__c}" />
+            </apex:pageblocksection>
+            <apex:pageblocksection title="Broadcast Chart" rendered="{!editMode}" collapsible="false" id="broadcasts">
+
+                <apex:chart height="500" width="1200" data="{!broadcastData}" rendered="{!renderChart}">
+                    <apex:axis type="Numeric" position="left" fields="data" title="Seconds" minimum="0" />
+                    <apex:axis type="Category" position="bottom" fields="name" title="Date" />
+                    <apex:barseries orientation="vertical" axis="left" xfield="name" yfield="data" />
+
+                </apex:chart>
+                <apex:pagemessage summary="No Broadcasts" severity="info" strength="3" rendered="{!renderMessages}" />
+
+            </apex:pageblocksection>
+            <apex:pageblocksection title="Timeslots" collapsible="false" rendered="{!editMode}" columns="1" id="pgs">
+                <apex:selectlist value="{!filterId}" size="1" label="Program Genre">
+                    <apex:selectoptions value="{!ListViewOptions}" />
+                    <apex:actionsupport event="onchange" action="{!resetFilter}" rerender="slots, broadcasts" />
+                </apex:selectlist>
+                
+
+                <apex:datatable value="{!timeslots2}" var="timeslot" id="slots" columnswidth="100px" cellspacing=" 10px">
+                    <apex:column >
+                        <div class="requiredInput">
+                            <div class="requiredBlock"></div> 
+                            <apex:facet name="header">Number of Broadcasts</apex:facet>
+                            <apex:inputText value="{!timeslot.numberOfBroadcasts}" required="true" />
+                        </div>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">Program Name</apex:facet>
+                        <apex:outputlink value="/{!timeslot.timeslot.id}" target="_blank">{!timeslot.timeslot.Program_Name__c}</apex:outputlink>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">Program Genre</apex:facet>
+                        <apex:outputtext value="{!timeslot.timeslot.Program_Genre__c}" />
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">Timeslot Date/Time</apex:facet>
+                        <apex:outputtext value="{!timeslot.timeslot.Timeslot_Date_Time__c}" />
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">Remaining Commercial Time (Seconds)</apex:facet>
+                        <apex:outputtext value="{!timeslot.timeslot.Remaining_Commercial_Time_Seconds__c}" />
+                    </apex:column>
+                </apex:datatable>
+                <apex:panelgrid columns="5">
+                    <apex:commandbutton action="{!first}" value="|<First" rerender="pgs" disabled="{!(!hasPrevious)}" />
+                    <apex:commandbutton action="{!previous}" disabled="{!(!hasPrevious)}" value="Previous" rerender="pgs" />
+                    {!pageNumber} of {!numberOfPages}
+                    <apex:commandbutton action="{!next}" disabled="{!(!hasNext)}" value="Next" rerender="pgs" />
+                    <apex:commandbutton action="{!last}" value="Last>|" rerender="pgs" disabled="{!(!hasNext)}" />
+                </apex:panelgrid>
+                <apex:outputpanel style="color:#4AA02C;font-weight:bold">
+                    <apex:actionstatus id="fetchStatus" starttext="Fetching..." stoptext="" />
+                </apex:outputpanel>
+            </apex:pageblocksection>
+        </apex:pageblock>
+    </apex:form>
+</apex:page>

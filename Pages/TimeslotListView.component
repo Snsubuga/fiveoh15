@@ -1,0 +1,9 @@
+<apex:component controller="TimeslotListViewController">
+    <apex:attribute name="listViewName" type="String" required="true"
+                    description="The name of the listview." assignto="{!listName}" />
+
+    <apex:enhancedlist height="400" rowsperpage="25" id="ContactList"
+                       listid="{!listId}" rendered="{!listId != null}" />
+
+    <apex:outputtext rendered="{!listId == null}" value="Could not find requewed ListView: '{!listName}'. Please contact your administrator." />
+</apex:component>
